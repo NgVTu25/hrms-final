@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+    <%- include('../partials/header') %>
+
+    <body>
+         <nav class="navbar navbar-default no-margin">
+            <!-- Brand and toggle get grouped for better mobile display -->
+
+            <div class="navbar-header fixed-brand">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+                    <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <%= userName %>
+                </a>
+            </div>
+            <!-- navbar-header-->
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2">
+                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+                        </button>
+                    </li>
+                    <li class="navbar-brand">
+                        <form action="/logout" method="get">
+                            <button id="logout" type="submit" style="margin-top: -3px" class="btn btn-default">
+                                <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <!-- bs-example-navbar-collapse-1 -->
+        </nav>
+        <div id="wrapper">
+            <!-- Include the common employee sidebar -->
+            <%- include('../partials/employee_sidebar') %>
+            
+            <!-- Page Content -->
+            <div id="page-content-wrapper">
+                <div class="container-fluid xyz">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h1>
+                                <h5 class="ThuongTitleProjectDetailsEmployee"><i class="fa fa-angle-right"></i>  Project Details</h5>
+                                <style>
+                                    .ThuongTitleProjectDetailsEmployee {
+                                        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                                        font-size: 1.6em;
+                                        padding-bottom: 9px;
+                                        margin: 10px 0 20px;
+                                        border-bottom: 1px solid #eee;
+                                        font-weight: bold;
+                                        color: #333;
+                                      }
+                                      </style>
+                                <a href="/employee/view-personal-projects" class="btn btn-default pull-right">
+                                    <i class="fa fa-arrow-left"></i> Back to Projects
+                                </a>
+                            </h1>
+                            <hr>
+                            
+                            <!-- Project Header Section -->
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="project-header">
+                                        <h2><%= project.title %></h2>
+                                        <div class="project-meta">
+                                            <span class="badge project-type"><%= project.type %></span>
+                                            <span class="badge <%= project.status === 'Running' ? 'badge-success' : 'badge-warning' %>">
+                                                <%= project.status %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 text-right">
+                                    <div class="project-dates">
+                                        <div><strong>Start Date:</strong> <%= moment(project.startDate).format('MMMM Do YYYY') %></div>
+                                        <div><strong>End Date:</strong> <%= moment(project.endDate).format('MMMM Do YYYY') %></div>
+                                        <div><strong>Duration:</strong> <%= moment(project.endDate).diff(moment(project.startDate), 'days') %> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Progress -->
+                            <div class="row mt-4">
+                                <div class="col-lg-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Project Progress</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-success progress-bar-striped active" 
+                                                     role="progressbar" 
+                                                     aria-valuenow="<%= progress %>" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100" 
+                                                     style="width: <%= progress %>%">
+                                                    <%= progress %>% Complete
+                                                </div>
+                                            </div>
+                                            <div class="row text-center">
+                                                <div class="col-xs-4">
+                                                    <div class="milestone">
+                                                        <i class="fa fa-calendar-check-o"></i>
+                                                        <p>Start Date</p>
+                                                        <h4><%= moment(project.startDate).format('MMM Do YY') %></h4>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-4">
+                                                    <div class="milestone">
+                                                        <i class="fa fa-clock-o"></i>
+                                                        <p>Time Elapsed</p>
+                                                        <h4><%= Math.max(0, moment().diff(moment(project.startDate), 'days')) %> days</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-4">
+                                                    <div class="milestone">
+                                                        <i class="fa fa-calendar-times-o"></i>
+                                                        <p>End Date</p>
+                                                        <h4><%= moment(project.endDate).format('MMM Do YY') %></h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Information -->
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Project Description</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div style="max-height: 300px; overflow-y: auto">
+                                                <p style="white-space: pre-line;"><%= project.description %></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <!-- Project Manager Card -->
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Project Manager</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <% if (typeof projectManager === 'object' && projectManager._id) { %>
+                                                <div class="media">
+                                                    <div class="media-left">
+                                                        <img class="media-object img-circle" src="https://via.placeholder.com/64" alt="Profile Image">
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <h4 class="media-heading"><%= projectManager.name %></h4>
+                                                        <p><strong>Email:</strong> <%= projectManager.email || 'Not available' %></p>
+                                                        <p><strong>Department:</strong> <%= projectManager.department || 'Not specified' %></p>
+                                                    </div>
+                                                </div>
+                                            <% } else { %>
+                                                <p>No project manager assigned</p>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Team -->
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Project Team</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <% if (projectTeam && projectTeam.length > 0) { %>
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Role</th>
+                                                                <th>Department</th>
+                                                                <th>Email</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <% projectTeam.forEach(function(member) { %>
+                                                                <tr <%= member._id.toString() === userId.toString() ? 'class="info"' : '' %>>
+                                                                    <td><%= member.name %> <%= member._id.toString() === userId.toString() ? '(You)' : '' %></td>
+                                                                    <td><%= member.role %></td>
+                                                                    <td><%= member.department || 'Not specified' %></td>
+                                                                    <td><%= member.email || 'Not available' %></td>
+                                                                </tr>
+                                                            <% }); %>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            <% } else { %>
+                                                <p>No team members assigned to this project.</p>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Additional Documents & Links (Placeholder) -->
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Project Resources</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <p><i class="fa fa-info-circle"></i> No additional resources available for this project.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /#page-content-wrapper -->
+        </div>
+        <!-- /#wrapper -->
+        <!-- jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+
+        <script src="/javascripts/sidebar_menu.js"></script>
+        
+        <style>
+            .project-header {
+                margin-bottom: 20px;
+            }
+            .project-meta {
+                margin-top: 10px;
+            }
+            .badge {
+                padding: 5px 10px;
+                margin-right: 5px;
+                font-size: 12px;
+            }
+            .project-type {
+                background-color: #5bc0de;
+                color: white;
+            }
+            .badge-success {
+                background-color: #5cb85c;
+                color: white;
+            }
+            .badge-warning {
+                background-color: #f0ad4e;
+                color: white;
+            }
+            .progress {
+                height: 25px;
+                margin-bottom: 20px;
+            }
+            .progress-bar {
+                line-height: 25px;
+                font-size: 14px;
+            }
+            .milestone {
+                padding: 10px;
+                border-radius: 4px;
+            }
+            .milestone i {
+                font-size: 24px;
+                color: #337ab7;
+            }
+            .milestone p {
+                margin: 5px 0;
+                color: #666;
+            }
+            .milestone h4 {
+                margin: 5px 0;
+                font-weight: bold;
+            }
+            .mt-4 {
+                margin-top: 20px;
+            }
+            .media-object {
+                width: 64px;
+                height: 64px;
+            }
+        </style>
+        
+        <script>
+            $(document).ready(function () {
+                for (i = new Date().getFullYear(); i > 1950; i--) {
+                    $("#year").append($("<option />").val(i).html(i));
+                }
+            });
+        </script>
+    </body>
+    <div id="myModal2" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <form method="post" action="/employee/mark-employee-attendance">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Check-in</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to check in?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+  <button type="submit" class="btn btn-default">Yes</button>                      <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            Cancel
+                        </button>
+                        
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form method="post" action="/employee/view-attendance">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Select Month/Year</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="Month">Month:</label>
+                            <select class="form-control" id="month" name="month">
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="year">Year:</label>
+                            <select class="form-control" id="year" name="year"></select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-default">View</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</html>

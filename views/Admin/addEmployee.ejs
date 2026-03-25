@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html>
+    <%- include('../partials/header') %>
+
+<body>
+<nav class="navbar navbar-default no-margin">
+    <!-- Brand and toggle get grouped for better mobile display -->
+
+    <div class="navbar-header fixed-brand">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+            <span class="glyphicon glyphicon-th-large" style="margin-left:5px;" aria-hidden="true"></span>
+        </button>
+        <a class="navbar-brand" href="#"> <%= userName %></a>
+    </div><!-- navbar-header-->
+
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+            <li class="active">
+                <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2"><span
+                            class="glyphicon glyphicon-th-large" aria-hidden="true"></span></button>
+            </li>
+            <li class="navbar-brand">
+                <form action="/logout" method="get">
+                    <button id="logout" type="submit" style="margin-top: -3px;" class="btn btn-default"><i
+                                class="fa fa-sign-out" aria-hidden="true"></i> Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </div><!-- bs-example-navbar-collapse-1 -->
+</nav>
+<div id="wrapper">
+    <!-- Sidebar -->
+    <%- include('../partials/adminSidebar') %>
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <div class="container-fluid xyz">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="page-header">
+                     
+                        <h5 class="ThuongTitleAddEmployeeAdmin"><i class="fa fa-angle-right"></i> Add Employee</h5>
+                    </div>
+
+                    <style>
+                        .ThuongTitleAddEmployeeAdmin {
+                            font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+                            font-size: 1.5em;
+                            padding-bottom: 9px;
+                            margin: 10px 0 20px;
+                            border-bottom: 1px solid #eee;
+                            font-weight: bold;
+                            color: #333;
+                          }
+                          </style>
+
+                    <div id="menu1">
+                        <form id="employee-form" class="form-horizontal" action="/admin/add-employee-bypass" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            
+                            <!-- Personal Information Section -->
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Personal Information</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <!-- Form Legend - Required Fields -->
+                                    <div class="form-legend">
+                                        <span class="text-danger">* Indicates required field</span>
+                                    </div>
+                                
+                                    <!-- Name Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Name: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-5">
+                                            <input type="text" class="form-control" placeholder="First name..." required name="firstName" maxlength="50" pattern="^[A-Za-zÀ-ỹ\s\-]+$" title="Alphabetical + Vietnamese chars only. No numbers or symbols except hyphens.">
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">First name is required!</span>
+                                        </div>
+                                        <div class="col-sm-5">
+                                            <input type="text" class="form-control" placeholder="Last name..." required name="lastName" maxlength="50" pattern="^[A-Za-zÀ-ỹ\s\-]+$" title="Alphabetical + Vietnamese chars only. No numbers or symbols except hyphens.">
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Last name is required!</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Birth Name Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Birth Name:</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" placeholder="Full birth name..." name="birthName" maxlength="100" pattern="^[A-Za-zÀ-ỹ\s\-]+$" title="Alphabetical + Vietnamese chars only. No numbers or symbols except hyphens.">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Date of Birth Field -->
+                            <div class="form-group">
+                                        <label class="col-sm-2 control-label">Date of Birth: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-4">
+                                            <div class="row">
+                                                <div class="col-xs-3">
+                                                    <select name="dobDay" class="form-control" required>
+                                                        <option value="">Day</option>
+                                                        <% for(let i=1; i<=31; i++) { %>
+                                                            <option value="<%= i %>"><%= i < 10 ? '0'+i : i %></option>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xs-4">
+                                                    <select name="dobMonth" class="form-control" required>
+                                                        <option value="">Month</option>
+                                                        <% for(let i=1; i<=12; i++) { %>
+                                                            <option value="<%= i %>"><%= i < 10 ? '0'+i : i %></option>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xs-5">
+                                                    <select name="dobYear" class="form-control" required>
+                                                        <option value="">Year</option>
+                                                        <% for(let i=new Date().getFullYear()-60; i<=new Date().getFullYear()-18; i++) { %>
+                                                            <option value="<%= i %>"><%= i %></option>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Date of birth is required!</span>
+                                        </div>
+                                        <label class="col-sm-2 control-label">Gender: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-4">
+                                            <label class="radio-inline">
+                                                <input type="radio" name="gender" value="male" checked> Male
+                                            </label>
+                                            <label class="radio-inline">
+                                                <input type="radio" name="gender" value="female"> Female
+                                            </label>
+                                        </div>
+                            </div>
+                                    
+                                    <!-- Personal Email Field -->
+                            <div class="form-group">
+                                        <label class="col-sm-2 control-label">Personal Email: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-10">
+                                            <div class="input-group">
+                                                <input type="email" class="form-control" placeholder="username@gmail.com" required name="email" pattern="[a-z0-9._%+\-]+@gmail\.com$" title="Please enter a valid Gmail address (username@gmail.com)">
+                                                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                                            </div>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Email address is required and must be a valid Gmail address!</span>
+                                <% if(hasErrors){ %>
+                                <% messages.forEach(function(item){
+                                                    if(item === "Email is already in use"){ %>
+                                                        <span class="help-block text-danger"><%= item %></span>
+                                <% }
+                                }) %>
+                                <% } %>
+                            </div>
+                                    </div>
+                                    
+                                    <!-- Phone Number Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Phone Number: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">+84</span>
+                                                <input type="text" class="form-control" placeholder="9 digits (without first 0)" required name="contactNumber" maxlength="9" pattern="^[1-9]\d{8}$" title="Enter 9 digits starting with 1-9 (without the first 0)">
+                                            </div>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Enter a valid Vietnamese phone number (9 digits without first 0)</span>
+                                        </div>
+                                    </div>
+                                    <!-- Address Fields -->
+                            <div class="form-group">
+                                        <label class="col-sm-2 control-label">Address: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-3">
+                                            <select class="form-control" name="province" required>
+                                                <option value="">City/Province...</option>
+                                            </select>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Province is required!</span>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <select class="form-control" name="district" required disabled>
+                                                <option value="">Select province first...</option>
+                                            </select>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">District is required!</span>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" placeholder="Detailed address..." name="detailedAddress" required minlength="10" title="Minimum 10 characters (Vietnamese format)">
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Detailed address is required!</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Birthplace Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Birthplace: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-5">
+                                            <select class="form-control" name="birthplace" required>
+                                                <option value="">City/Province...</option>
+                                            </select>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Birthplace is required!</span>
+                                        </div>
+                            </div>
+                                    
+                                    <!-- ID Number Field -->
+                            <div class="form-group">
+                                        <label class="col-sm-2 control-label">ID Number (CCCD): <span class="text-danger">*</span></label>
+                                        <div class="col-sm-5">
+                                            <input type="text" class="form-control" placeholder="ID/CCCD number" name="idNumber" required maxlength="12" pattern="^\d{12}$" title="Must be exactly 12 digits">
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">ID number is required!</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Photo Upload Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Photo:</label>
+                                        <div class="col-sm-10">
+                                            <div class="row">
+                                                <div class="col-sm-4">
+                                                    <div class="thumbnail" style="width: 150px; height: 150px; margin-bottom: 10px;">
+                                                        <img id="preview-image" src="https://via.placeholder.com/150" alt="Upload Photo" style="max-width: 100%; max-height: 100%;">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-8">
+                                                    <div class="custom-file-upload">
+                                                        <input type="file" id="photo" name="photo" accept="image/*" style="position: absolute; left: -9999px;">
+                                                        <button type="button" class="btn btn-primary" onclick="document.getElementById('photo').click();">
+                                                            <i class="fa fa-upload"></i> Upload Photo
+                                                        </button>
+                                                        <span id="file-name-display" style="margin-left: 10px;">No file chosen</span>
+                                                    </div>
+                                                    <p class="help-block">Upload a profile photo (optional)</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Password Field (Hidden but required) -->
+                                    <div class="form-group" style="display: none;">
+                                        <label class="col-sm-2 control-label">Password:</label>
+                                        <div class="col-sm-4">
+                                            <input type="password" class="form-control" name="password" value="123456" minlength="6">
+                                            <span class="help-block">Default password will be set and can be changed later</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Job Information Section -->
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Job Information</h4>
+                            </div>
+                                <div class="panel-body">
+                                    <!-- Job Title Field -->
+                            <div class="form-group">
+                                        <label class="col-sm-2 control-label">Job Title: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" name="designation" required title="Must select from predefined list">
+                                                <option value="">Select job title...</option>
+                                                <option value="Software Engineer">Software Engineer</option>
+                                                <option value="System Analyst">System Analyst</option>
+                                                <option value="Project Manager">Project Manager</option>
+                                                <option value="Quality Assurance Engineer">Quality Assurance Engineer</option>
+                                                <option value="UI/UX Designer">UI/UX Designer</option>
+                                                <option value="Accounts Manager">Accounts Manager</option>
+                                                <option value="HR Manager">HR Manager</option>
+                                            </select>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Job title is required!</span>
+                                        </div>
+                                        <label class="col-sm-2 control-label">Department: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" name="department" required title="Must select from predefined list of departments">
+                                                <option value="">Select department...</option>
+                                    <option value="Software Development">Software Development</option>
+                                    <option value="Quality Assurance">Quality Assurance</option>
+                                    <option value="Human Resource">Human Resource</option>
+                                                <option value="IT consulting">IT Consulting</option>
+                                    <option value="Accounts">Accounts</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Business Analysis">Business Analysis</option>
+                                </select>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Department is required!</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Job ID Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Job ID:</label>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" placeholder="Job ID" name="jobId">
+                                        </div>
+                            </div>
+                                    
+                                    <!-- Office Email Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Office Email: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-4">
+                                            <div class="input-group">
+                                                <input type="email" class="form-control" placeholder="office.gmail@company.com" required name="officeEmail" pattern="[a-z0-9._%+\-]+@([a-z0-9\-]+\.)+[a-z]{2,}$" title="Please enter a valid company email address">
+                                                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                                            </div>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Office email is required and must be a valid company email!</span>
+                                            <% if(hasErrors){ %>
+                                            <% messages.forEach(function(item){
+                                                if(item === "Office Email is already in use"){ %>
+                                                    <span class="help-block text-danger"><%= item %></span>
+                                            <% }
+                                            }) %>
+                                            <% } %>
+                                        </div>
+                            </div>
+                                    
+                                    <!-- Supervisor Field -->
+                            <div class="form-group">
+                                        <label class="col-sm-2 control-label">Supervisor:</label>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" placeholder="Enter Supervisor Name" name="supervisor" title="Must reference existing employee">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Employee Type Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Employee Type: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" name="employeeType" required title="Must select either Full-Time or Part-Time">
+                                                <option value="">Select type...</option>
+                                                <option value="Full-Time">Full-Time</option>
+                                                <option value="Part-Time">Part-Time</option>
+                                </select>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Employee type is required!</span>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <span class="help-block">Default password for new employee is <strong>123456</strong></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Start Date Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Start Date:</label>
+                                        <div class="col-sm-4">
+                                            <div class="row">
+                                                <div class="col-xs-3">
+                                                    <select name="startDay" class="form-control">
+                                                        <option value="">Day</option>
+                                                        <% for(let i=1; i<=31; i++) { %>
+                                                            <option value="<%= i %>"><%= i < 10 ? '0'+i : i %></option>
+                                                        <% } %>
+                                                    </select>
+                                            </div>
+                                                <div class="col-xs-4">
+                                                    <select name="startMonth" class="form-control">
+                                                        <option value="">Month</option>
+                                                        <% for(let i=1; i<=12; i++) { %>
+                                                            <option value="<%= i %>"><%= i < 10 ? '0'+i : i %></option>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xs-5">
+                                                    <select name="startYear" class="form-control">
+                                                        <option value="">Year</option>
+                                                        <% 
+                                                        const currentYear = new Date().getFullYear();
+                                                        for(let i=currentYear; i<=currentYear+5; i++) { %>
+                                                            <option value="<%= i %>"><%= i %></option>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Work Experience Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Work Experience:</label>
+                                        <div class="col-sm-6">
+                                            <label class="radio-inline">
+                                                <input type="radio" name="experience" value="Fresher" checked> Fresher
+                                            </label>
+                                            <label class="radio-inline">
+                                                <input type="radio" name="experience" value="Junior"> Junior
+                                            </label>
+                                            <label class="radio-inline">
+                                                <input type="radio" name="experience" value="Senior"> Senior
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Skills Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Skills:</label>
+                                        <div class="col-sm-10">
+                                            <div class="checkbox-scroll-container">
+                                                <div class="checkbox-scroll">
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="N/A">N/A</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="ROR">ROR</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value=".NET">.NET</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="PHP">PHP</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="Python Django">Python Django</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="Mobile Development">Mobile Development</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="Big Data Analytics">Big Data Analytics</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="Firmware">Firmware</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="Front End">Front End</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="UI/UX Design">UI/UX Design</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Form Buttons -->
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="button" onclick="window.location.href='/admin/view-all-employees'" class="btn btn-default btn-lg" style="width: 120px; margin-right: 15px;">Cancel</button>
+                                    <button type="submit" class="btn btn-primary btn-lg" style="width: 120px;" onclick="enforceBypassAction(event)">Save</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+<!-- jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+<script src="/javascripts/sidebar_menu.js"></script>
+
+<!-- Toastr for notifications -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- Provinces data script for address dropdowns -->
+<script src="/javascripts/provinces.js"></script>
+
+<!-- Initialize province dropdowns -->
+<script>
+    // Hàm xử lý việc submit form đến route bypass CSRF
+    function enforceBypassAction(e) {
+        // Không cần ngăn chặn sự kiện mặc định vì chúng ta muốn form được submit đến route bypass
+        console.log('Nút Save được nhấn, đang đảm bảo form sẽ submit đến route bypass...');
+        
+        // Đảm bảo form action là bypass route
+        $('#employee-form').attr('action', '/admin/add-employee-bypass');
+        
+        // In thông tin xác nhận
+        console.log('Form action hiện tại:', $('#employee-form').attr('action'));
+        
+        // Form sẽ tự submit vì nút vẫn giữ type="submit"
+        return true;
+    }
+    
+    $(document).ready(function() {
+        // Load provinces and initialize province dropdown change event
+        loadProvincesDataImmediately();
+    });
+</script>
+
+<!-- Flash Messages -->
+<script>
+$(document).ready(function() {
+    // Enhanced Toastr configuration
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": true,
+        "positionClass": "toast-top-center", // Changed from toast-top-right for better visibility
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "500", // Increased from 300
+        "hideDuration": "1000",
+        "timeOut": "7000", // Increased from 5000 to give more time to read
+        "extendedTimeOut": "2000", // Increased from 1000
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut",
+        "tapToDismiss": false // Require clicking the X to dismiss
+    };
+    
+    <%# Check if messages exist and display them %>
+    <% if (typeof messages !== 'undefined') { %>
+        <% if (messages.success && messages.success.length > 0) { %>
+            toastr.success("<%= messages.success[0] %>", "Success!", {
+                "iconClass": 'toast-success animated bounceIn'
+            });
+        <% } %>
+        
+        <% if (messages.error && messages.error.length > 0) { %>
+            toastr.error("<%= messages.error[0] %>", "Error!", {
+                "iconClass": 'toast-error animated shake'
+            });
+        <% } %>
+    <% } %>
+});
+</script>
+
+<!-- Add CSS for animations -->
+<style>
+@keyframes bounceIn {
+  from, 20%, 40%, 60%, 80%, to {
+    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+  }
+  0% {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+  20% {
+    transform: scale3d(1.1, 1.1, 1.1);
+  }
+  40% {
+    transform: scale3d(0.9, 0.9, 0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: scale3d(1.03, 1.03, 1.03);
+  }
+  80% {
+    transform: scale3d(0.97, 0.97, 0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+}
+.bounceIn {
+  animation-duration: 0.75s;
+  animation-name: bounceIn;
+}
+@keyframes shake {
+  from, to {
+    transform: translate3d(0, 0, 0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translate3d(-10px, 0, 0);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translate3d(10px, 0, 0);
+  }
+}
+.shake {
+  animation-name: shake;
+  animation-duration: 0.8s;
+}
+.animated {
+  animation-fill-mode: both;
+}
+/* Custom toast styling */
+.toast-success, .toast-error {
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.toast-success {
+  background-color: #51A351;
+}
+.toast-error {
+  background-color: #BD362F;
+}
+</style>
+
+<!-- CSRF Token Refresh Script -->
+<script>
+    // CSRF Token Refresh
+    $(document).ready(function() {
+        // Đảm bảo form luôn sử dụng đúng action để tránh lỗi CSRF
+        $('#employee-form').attr('action', '/admin/add-employee-bypass');
+        console.log('Form action đã được thiết lập thành: ' + $('#employee-form').attr('action'));
+        
+        // Thêm sự kiện submit để đảm bảo luôn dùng đúng route
+        $('#employee-form').on('submit', function(e) {
+            // Kiểm tra action hiện tại
+            var currentAction = $(this).attr('action');
+            if (currentAction !== '/admin/add-employee-bypass') {
+                console.log('Đã phát hiện action không đúng:', currentAction);
+                console.log('Đang sửa lại thành /admin/add-employee-bypass');
+                $(this).attr('action', '/admin/add-employee-bypass');
+            }
+            console.log('Form đang submit đến:', $(this).attr('action'));
+        });
+        
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-Token': '<%= csrfToken %>'
+            }
+        });
+        
+        // Đặt token vào form chính
+        var csrfToken = '<%= csrfToken %>';
+        $('input[name="_csrf"]').val(csrfToken);
+        
+        // Làm mới token CSRF mỗi 5 phút để tránh hết hạn
+        function refreshCSRFToken() {
+            $.get('/refresh-csrf', function(data) {
+                if (data && data.csrfToken) {
+                    // Cập nhật token trong tất cả các form
+                    $('input[name="_csrf"]').val(data.csrfToken);
+                    csrfToken = data.csrfToken;
+                    console.log('CSRF token refreshed successfully');
+                }
+            });
+        }
+        
+        // Đặt thời gian làm mới token
+        setInterval(refreshCSRFToken, 5 * 60 * 1000); // 5 phút
+        
+        // Thêm sự kiện trước khi gửi form để đảm bảo token CSRF đúng
+        $('form').on('submit', function() {
+            // Kiểm tra giá trị token CSRF hiện tại
+            if (csrfToken && !$('input[name="_csrf"]', this).val()) {
+                // Thêm token nếu bị thiếu
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: '_csrf',
+                    value: csrfToken
+                }).appendTo(this);
+            }
+        });
+        
+        // Image preview
+        $("#photo").change(function() {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#preview-image').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(this.files[0]);
+                
+                // Hiển thị tên file đã chọn
+                $('#file-name-display').text(this.files[0].name);
+            } else {
+                // Reset về giá trị mặc định nếu không có file nào được chọn
+                $('#preview-image').attr('src', 'https://via.placeholder.com/150');
+                $('#file-name-display').text('No file chosen');
+            }
+        });
+        
+        // Auto-scroll to form validation errors if any
+        if ($('.text-danger').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.text-danger').first().offset().top - 100
+            }, 200);
+        }
+        
+        // Real-time validation for required fields
+        $('input[required], select[required]').on('blur', function() {
+            if (!this.value.trim()) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').show();
+            } else {
+                $(this).removeClass('error-input');
+                $(this).closest('.form-group').find('.error-message').hide();
+            }
+        });
+        
+        // Show validation message on required select fields
+        $('select[required]').on('change', function() {
+            if (!this.value) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').show();
+            } else {
+                $(this).removeClass('error-input');
+                $(this).closest('.form-group').find('.error-message').hide();
+            }
+        });
+        
+        // Validate form fields before submit
+        $('#employee-form').on('submit', function(e) {
+            let hasErrors = false;
+            
+            // Check all required fields
+            $(this).find('input[required], select[required]').each(function() {
+                if (!this.value.trim()) {
+                    $(this).addClass('error-input');
+                    $(this).closest('.form-group').find('.error-message').show();
+                    hasErrors = true;
+                }
+            });
+            
+            // Email validation for Gmail
+            const personalEmail = $('input[name="email"]').val().trim();
+            const gmailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@gmail\.com$/i;
+            if (personalEmail && !gmailRegex.test(personalEmail)) {
+                $('input[name="email"]').addClass('error-input');
+                $('input[name="email"]').closest('.form-group').find('.error-message').text('Please enter a valid Gmail address (example: username@gmail.com)').show();
+                hasErrors = true;
+            }
+            
+            // Email validation for company email
+            const officeEmail = $('input[name="officeEmail"]').val().trim();
+            const emailRegex = /^[a-z0-9](\.?[a-z0-9_-]){2,}@([a-z0-9-]+\.)+[a-z]{2,6}$/i;
+            if (officeEmail && !emailRegex.test(officeEmail)) {
+                $('input[name="officeEmail"]').addClass('error-input');
+                $('input[name="officeEmail"]').closest('.form-group').find('.error-message').text('Please enter a valid company email address').show();
+                hasErrors = true;
+            }
+            
+            // Phone number validation
+            const phoneNumber = $('input[name="contactNumber"]').val().trim();
+            const phoneRegex = /^[1-9]\d{8}$/;
+            if (phoneNumber && !phoneRegex.test(phoneNumber)) {
+                $('input[name="contactNumber"]').addClass('error-input');
+                if (phoneNumber.length !== 9) {
+                    $('input[name="contactNumber"]').closest('.form-group').find('.error-message').text('Phone number must be exactly 9 digits').show();
+                } else {
+                    $('input[name="contactNumber"]').closest('.form-group').find('.error-message').text('Invalid format. Must start with a digit from 1-9').show();
+                }
+                hasErrors = true;
+            }
+            
+            if (hasErrors) {
+                e.preventDefault();
+                // Scroll to first error
+                $('html, body').animate({
+                    scrollTop: $('.error-input').first().offset().top - 100
+                }, 200);
+                return false;
+            }
+            
+            // Trim khoảng trắng đầu/cuối cho email
+            var emailInput = $('input[name="email"]');
+            emailInput.val($.trim(emailInput.val()));
+            
+            // Xử lý viết hoa chữ cái đầu cho first name, last name và birth name
+            var firstNameInput = $('input[name="firstName"]');
+            var lastNameInput = $('input[name="lastName"]');
+            var birthNameInput = $('input[name="birthName"]');
+            
+            // Hàm format viết hoa chữ cái đầu và các chữ sau dấu cách
+            function toTitleCase(str) {
+                if (!str) return str;
+                str = $.trim(str); // Trim khoảng trắng
+                return str.split(' ').map(function(word) {
+                    if (word.length > 0) {
+                        return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                    }
+                    return '';
+                }).join(' ');
+            }
+            
+            // Áp dụng định dạng viết hoa chữ cái đầu
+            firstNameInput.val(toTitleCase(firstNameInput.val()));
+            lastNameInput.val(toTitleCase(lastNameInput.val()));
+            
+            // Chỉ xử lý birth name nếu có giá trị
+            if (birthNameInput.val()) {
+                birthNameInput.val(toTitleCase(birthNameInput.val()));
+            }
+            
+            // Kiểm tra và đảm bảo token CSRF vẫn còn trong form
+            if (!$('input[name="_csrf"]').length || $('input[name="_csrf"]').val() !== csrfToken) {
+                // Nếu token bị mất hoặc thay đổi, thêm lại
+                $('input[name="_csrf"]').remove();
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: '_csrf',
+                    value: csrfToken
+                }).appendTo(this);
+            }
+            
+            // We now use the province and district names directly as the value in the select
+            // No need to create hidden fields to translate the code to name
+            
+            return true; // Allow form submission
+        });
+        
+        // Apply error validation on page load for required fields that are empty
+        setTimeout(function() {
+            $('form input[required]:visible, form select[required]:visible').filter(function() {
+                return !this.value.trim();
+            }).each(function() {
+                $(this).addClass('error-input');
+            });
+        }, 500);
+        
+        // Custom Gmail validation
+        $('input[name="email"]').on('input blur', function() {
+            const value = $(this).val().trim();
+            const gmailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@gmail\.com$/i;
+            
+            if (value && !gmailRegex.test(value)) {
+                $(this).addClass('error-input');
+                // Update error message text
+                const errorMsg = $(this).closest('.form-group').find('.error-message');
+                errorMsg.text('Please enter a valid Gmail address (example: username@gmail.com)');
+                errorMsg.show();
+            } else if (!value) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').text('Email address is required!').show();
+            } else {
+                $(this).removeClass('error-input');
+                $(this).closest('.form-group').find('.error-message').hide();
+            }
+        });
+        
+        // Custom company email validation
+        $('input[name="officeEmail"]').on('input blur', function() {
+            const value = $(this).val().trim();
+            const emailRegex = /^[a-z0-9](\.?[a-z0-9_-]){2,}@([a-z0-9-]+\.)+[a-z]{2,6}$/i;
+            
+            if (value && !emailRegex.test(value)) {
+                $(this).addClass('error-input');
+                // Update error message text
+                const errorMsg = $(this).closest('.form-group').find('.error-message');
+                errorMsg.text('Please enter a valid company email address');
+                errorMsg.show();
+            } else if (!value) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').text('Office email is required!').show();
+            } else {
+                $(this).removeClass('error-input');
+                $(this).closest('.form-group').find('.error-message').hide();
+            }
+        });
+        
+        // Vietnamese phone number validation
+        $('input[name="contactNumber"]').on('input blur', function() {
+            const value = $(this).val().trim();
+            // The pattern validates the first digit must be 1-9 followed by 8 digits
+            const phoneRegex = /^[1-9]\d{8}$/;
+            
+            if (value && value.length !== 9) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').text('Phone number must be exactly 9 digits').show();
+            } else if (value && !phoneRegex.test(value)) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').text('Invalid format. Must start with a digit from 1-9').show();
+            } else if (!value) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').text('Phone number is required!').show();
+            } else {
+                $(this).removeClass('error-input');
+                $(this).closest('.form-group').find('.error-message').hide();
+            }
+        });
+        
+        // Ghi chú về việc tải dữ liệu tỉnh thành - không cần gọi tại đây nữa
+        console.log("jQuery ready, waiting for provinces.js to load data");
+        // Hàm loadProvincesDataImmediately đã được gọi tự động từ provinces.js
+        
+        // Xử lý submit form để chuyển 3 dropdown date thành 1 ngày ISO
+        $('#employee-form').on('submit', function(e) {
+            // Lưu token CSRF trước khi thực hiện các thao tác
+            const csrfToken = $('input[name="_csrf"]').val();
+            
+            // Xử lý Date of Birth
+            const dobDay = $('select[name="dobDay"]').val();
+            const dobMonth = $('select[name="dobMonth"]').val();
+            const dobYear = $('select[name="dobYear"]').val();
+            
+            if (dobDay && dobMonth && dobYear) {
+                // Format tháng và ngày để đảm bảo có 2 chữ số
+                const formattedDay = dobDay.toString().padStart(2, '0');
+                const formattedMonth = dobMonth.toString().padStart(2, '0');
+                
+                // Tạo ngày ISO (yyyy-mm-dd)
+                const isoDate = `${dobYear}-${formattedMonth}-${formattedDay}`;
+                
+                // Xóa trường cũ nếu đã tồn tại để tránh trùng lặp
+                $('input[name="dateOfBirth"]').remove();
+                
+                // Tạo input ẩn chứa giá trị ISO
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'dateOfBirth',
+                    value: isoDate
+                }).appendTo(this);
+            } else if(dobDay || dobMonth || dobYear) {
+                // Nếu chỉ nhập một phần của ngày, hiển thị lỗi
+                e.preventDefault();
+                alert('Vui lòng nhập đầy đủ ngày, tháng, năm cho ngày sinh');
+                return false;
+            }
+            
+            // Xử lý Start Date (nếu có)
+            const startDay = $('select[name="startDay"]').val();
+            const startMonth = $('select[name="startMonth"]').val();
+            const startYear = $('select[name="startYear"]').val();
+            
+            // Chỉ xử lý nếu cả 3 giá trị đều có hoặc đều không có
+            if (startDay && startMonth && startYear) {
+                // Format tháng và ngày để đảm bảo có 2 chữ số
+                const formattedStartDay = startDay.toString().padStart(2, '0');
+                const formattedStartMonth = startMonth.toString().padStart(2, '0');
+                
+                // Tạo ngày ISO (yyyy-mm-dd)
+                const isoStartDate = `${startYear}-${formattedStartMonth}-${formattedStartDay}`;
+                
+                // Xóa trường cũ nếu đã tồn tại để tránh trùng lặp
+                $('input[name="startDate"]').remove();
+                
+                // Tạo input ẩn chứa giá trị ISO
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'startDate',
+                    value: isoStartDate
+                }).appendTo(this);
+            } else if(startDay || startMonth || startYear) {
+                // Nếu chỉ nhập một phần của ngày, hiển thị lỗi
+                e.preventDefault();
+                alert('Vui lòng nhập đầy đủ ngày, tháng, năm cho ngày bắt đầu');
+                return false;
+            }
+            
+            // Kiểm tra và đảm bảo token CSRF vẫn còn trong form
+            if (!$('input[name="_csrf"]').length || $('input[name="_csrf"]').val() !== csrfToken) {
+                // Nếu token bị mất hoặc thay đổi, thêm lại
+                $('input[name="_csrf"]').remove();
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: '_csrf',
+                    value: csrfToken
+                }).appendTo(this);
+            }
+            
+            // We now use the province and district names directly as the value in the select
+            // No need to create hidden fields to translate the code to name
+            
+            return true; // Allow form submission
+        });
+        
+        // Convert date inputs to DD/MM/YY format
+        $('.date-input').each(function() {
+            // Store the ISO format for form submission
+            $(this).attr('data-iso-value', $(this).val());
+            
+            // Add change event to store ISO value when changed
+            $(this).on('change', function() {
+                $(this).attr('data-iso-value', $(this).val());
+                
+                // If there's a value, format it as DD/MM/YY for display
+                if ($(this).val()) {
+                    var date = new Date($(this).val());
+                    var day = ("0" + date.getDate()).slice(-2);
+                    var month = ("0" + (date.getMonth() + 1)).slice(-2);
+                    var year = date.getFullYear().toString().substr(-2);
+                    
+                    // Format for display only
+                    var formattedDate = day + '/' + month + '/' + year;
+                    $(this).attr('data-formatted', formattedDate);
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    .file-input {
+        display: none;
+    }
+    .thumbnail {
+        border: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+    }
+    .breadcrumb {
+        background-color: transparent;
+        padding-left: 0;
+    }
+    .panel-title {
+        font-weight: bold;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .panel {
+        margin-bottom: 20px;
+    }
+    .help-block {
+        margin-top: 5px;
+        margin-bottom: 0;
+    }
+    .text-danger {
+        color: #a94442;
+    }
+    .api-error {
+        color: #a94442;
+        background-color: #f2dede;
+        border-color: #ebccd1;
+    }
+    .error-input {
+        border-color: #a94442;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+        background-color: #fff8f8;
+    }
+    .error-message {
+        color: #a94442;
+        margin-top: 5px;
+        display: none;
+        font-size: 12px;
+        font-weight: bold;
+        animation: fadeIn 0.3s;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .required-field {
+        color: #a94442;
+        margin-left: 3px;
+    }
+    /* Add style for form legend */
+    .form-legend {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    .form-legend .text-danger {
+        font-size: 14px;
+        font-weight: normal;
+        margin-left: 10px;
+    }
+    /* Custom file upload styles */
+    .custom-file-upload {
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+    #file-name-display {
+        display: inline-block;
+        vertical-align: middle;
+        color: #555;
+        font-style: italic;
+    }
+    /* Checkbox scroll container styles */
+    .checkbox-scroll-container {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #fff;
+    }
+    .checkbox-scroll {
+        max-height: 150px;
+        overflow-y: auto;
+        padding: 10px;
+    }
+    .checkbox-scroll .checkbox {
+        margin-top: 2px;
+        margin-bottom: 2px;
+    }
+    .checkbox-scroll .checkbox label {
+        font-weight: normal;
+    }
+    
+    /* Styles for form after removing fixed height scroll */
+    #menu1 {
+        margin-bottom: 50px; /* Add bottom margin for spacing */
+        margin-top: -15px; /* Move form up a bit */
+    }
+    #menu1 .panel {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    #menu1 .panel-heading {
+        background-color: #f8f8f8;
+    }
+    #wrapper {
+        padding-bottom: 50px; /* Ensure there's padding at bottom of page */
+    }
+    .page-header {
+        margin-top: 10px; /* Reduce top margin of page header */
+        margin-bottom: 15px; /* Reduce bottom margin of page header */
+    }
+    #page-content-wrapper {
+        padding-top: 10px; /* Reduce top padding of page content */
+    }
+</style>
+</body>
+
+<div id="myModal2" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <form method="post" action="/admin/mark-attendance">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        &times;
+                    </button>
+                    <h4 class="modal-title">Check-in</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to check in?</p>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="_csrf" value="<%=csrfToken%>" />
+           <button type="submit" class="btn btn-default">Yes</button>         <button type="reset" class="btn btn-default" data-dismiss="modal">
+                        Cancel
+                    </button>
+                    
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</html>
