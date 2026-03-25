@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+    <%- include('../partials/header') %>
+    <link rel="stylesheet" href="/stylesheets/thuongTitle.css" />
+    <body>
+        <nav class="navbar navbar-default no-margin">
+            <!-- Brand and toggle get grouped for better mobile display -->
+
+            <div class="navbar-header fixed-brand">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+                    <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <%= userName %>
+                </a>
+            </div>
+            <!-- navbar-header-->
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2">
+                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+                        </button>
+                    </li>
+                    <li class="navbar-brand">
+                        <form action="/logout" method="get">
+                            <button id="logout" type="submit" style="margin-top: -3px" class="btn btn-default">
+                                <i class="fa fa-user" aria-hidden="true"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <!-- bs-example-navbar-collapse-1 -->
+        </nav>
+        <div id="wrapper">
+          <%- include('../partials/sidebar') %>
+            <!-- /#sidebar-wrapper -->
+
+            <!-- Page Content -->
+                <!-- Page Content -->
+                <div id="page-content-wrapper">
+                    <div class="container-fluid xyz">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h2 class="ThuongTitleLeaveApplicationsManager"><i class="fa fa-angle-right"></i> Leave Applications</h2>
+                                <style>
+                                .ThuongTitleLeaveApplicationsManager {
+                                    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                                    font-size: 1.6em;
+                                    padding-bottom: 9px;
+                                    margin: 10px 0 20px;
+                                    border-bottom: 1px solid #eee;
+                                    font-weight: bold;
+                                    color: #333;
+                                  }
+                                  </style>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                    <!-- Search input bên trái -->
+                                    <div style="position: relative; width: 250px; font-size: 13px;">
+                                        <input type="text" id="searchTitle" class="form-control" placeholder="Search by title..." 
+                                            style="padding-right: 30px; padding-left: 15px;">
+                                    </div>
+                                
+                                    <!-- Hai ô select bên phải -->
+                                    <div style="display: flex; gap: 20px;">
+                                        <div style="position: relative; width: 180px;">
+                                            <select id="searchType" class="form-control" style="padding-right: 30px; padding-left: 15px; font-size: 13px;">
+                                                <option value="">All Types</option>
+                                                <option value="Annual Leave">Annual Leave</option>
+                                                <option value="Sick Leave">Sick Leave</option>
+                                                <option value="Maternity Leave">Maternity Leave</option>
+                                                <option value="Emergency Leave">Emergency Leave</option>
+                                            </select>
+                                        </div>
+                                        <div style="position: relative; width: 180px;">
+                                            <select id="searchStatus" class="form-control" style="padding-right: 30px; padding-left: 15px; font-size: 13px;">
+                                                <option value="Pending" selected>Pending</option>
+                                                <option value="Approved">Approved</option>
+                                                <option value="Disapproved">Disapproved</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div style="height: 500px; overflow: auto">
+                                    <% if(hasLeave===1){ %>
+                                        <table id="example" class="display" cellspacing="0"
+                                            style="height: 10%; overflow: auto">
+                                            <thead>
+                                                <tr>
+                                                    <th>Applicant's Name</th>
+                                                    <th>Title</th>
+                                                    <th>Type</th>
+                                                    <th>Applied Date</th>
+                                                    <th>Period(Days)</th>
+                                                    <th>Status</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% for(var i=0;i < leaves.length;i++){ %>
+                                                    <tr>
+                                                        <td>
+                                                            <%= employees[i].name %>
+                                                        </td>
+                                                        <td>
+                                                            <%= leaves[i].title %>
+                                                        </td>
+                                                        <td>
+                                                            <%= leaves[i].type %>
+                                                        </td>
+                                                        <td>
+                                                            <%= moment(leaves[i].appliedDate).format('MMMM Do YYYY') %>
+                                                        </td>
+                                                        <td>
+                                                            <% if (leaves[i].period === 0.5) { %>
+                                                                Half day (4 hours)
+                                                            <% } else if (leaves[i].period === 1) { %>
+                                                                1 day
+                                                            <% } else { %>
+                                                                <%= leaves[i].period / 1 %> days
+                                                            <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <span class="status <%= leaves[i].adminResponse.toLowerCase() %>">
+                                                                <%= leaves[i].adminResponse %>
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <form method="get"
+                                                                action="/manager/respond-application/<%= leaves[i]._id %>/<%= employees[i]._id %>">
+                                                                <button type="submit">
+                                                                    <i class="fa fa-square-check" title="Responsd"
+                                                                        aria-hidden="true"></i>
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                            </tbody>
+                                        </table>
+                                        <% }else{ %>
+                                            <p>Leave Applications not found</p>
+                                            <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <!-- /#page-content-wrapper -->
+        </div>
+        <!-- /#wrapper -->
+        <!-- jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.js" charset="UTF-8"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+        <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+        <script src="/javascripts/sidebar_menu.js"></script>
+        <script>
+            $(document).ready(function () {
+                const table = $("#example").DataTable({
+                    order: [],
+                    dom: '<"top">rt<"bottom"lp><"clear">',
+                    paging: true,
+                    pageLength: 5,
+                    info: false,
+                    language: {
+                        paginate: {
+                            previous: 'Previous',
+                            next: 'Next'
+                        }
+                    },
+                    pagingType: 'simple_numbers'
+                });
+
+                // Style pagination buttons
+                $('.paginate_button.previous').addClass('btn btn-default');
+                $('.paginate_button.next').addClass('btn btn-default');
+                $('.paginate_button').not('.previous,.next').addClass('btn btn-sm btn-default');
+
+                // Search by Title (column 1)
+                $('#searchTitle').on('keyup', function() {
+                    table.column(1).search(this.value).draw();
+                });
+
+                // Filter by Type (column 2)
+                $('#searchType').on('change', function() {
+                    table.column(2).search(this.value).draw();
+                });
+
+                // Filter by Status (column 5)
+                $('#searchStatus').on('change', function() {
+                    table.column(5).search(this.value).draw();
+                });
+
+                // Apply default filter for Pending status
+                table.column(5).search('Pending').draw();
+            });
+        </script>
+    </body>
+
+    <%- include('../partials/modals') %>
+    <style>
+        /* Table styling */
+        table#example {
+            width: 100% !important;
+            background: #fff;
+            margin-bottom: 40px;
+            border-radius: 10px;
+            overflow: hidden;
+            border-collapse: collapse;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        table#example thead {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            font-weight: bold;
+        }
+        
+        table#example thead th {
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 12px;
+        }
+        
+        table#example tbody td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        table#example tbody tr:hover {
+            background-color: #f0f8ff;
+        }
+        
+        /* Status indicators */
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 14px;
+            display: inline-block;
+            text-transform: capitalize;
+        }
+        
+        .status.approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status.rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        /* Page header */
+        .page-header {
+            font-size: 1.5em;
+            color: #000000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 600;
+        }
+        
+        /* Search input */
+        .form-control {
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            padding: 3px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background-color: #bdc3c7;
+            border-radius: 10px;
+        }
+
+        /* Enhanced Pagination */
+        .dataTables_length,
+.dataTables_info {
+    display: none !important;
+scrollY: "400px",
+
+}
+.dataTables_paginate {
+  text-align: center !important;
+  float: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 5px 10px;
+  margin: 0 3px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  color: #007bff !important;
+  transition: all 0.3s ease;
+  margin-top: 95px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background-color: #007bff;
+  color: white !important;
+  border-color: #007bff;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background-color: #007bff;
+  color: rgb(129, 129, 129) !important;
+  border-color: #007bff;
+  font-weight: bold;
+}
+
+        .dataTables_wrapper .paginate_button.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .dataTables_wrapper .paginate_button.previous,
+        .dataTables_wrapper .paginate_button.next {
+            font-weight: bold;
+            min-width: 80px;
+        }
+    </style>
+</html>

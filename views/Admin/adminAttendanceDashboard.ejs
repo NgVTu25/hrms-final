@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/stylesheets/thuongTitle.css" />
+<body>
+<nav class="navbar navbar-default no-margin">
+    <!-- Brand and toggle get grouped for better mobile display -->
+
+    <div class="navbar-header fixed-brand">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+            <span class="glyphicon glyphicon-th-large" style="margin-left:5px;" aria-hidden="true"></span>
+        </button>
+        <a class="navbar-brand" href="#"> <%= userName %></a>
+    </div><!-- navbar-header-->
+
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+            <li class="active">
+                <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2"><span
+                            class="glyphicon glyphicon-th-large" aria-hidden="true"></span></button>
+            </li>
+            <li class="navbar-brand">
+                <form action="/logout" method="get">
+                    <button id="logout" type="submit" style="margin-top: -3px;" class="btn btn-default"><i
+                                class="fa fa-sign-out" aria-hidden="true"></i> Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </div><!-- bs-example-navbar-collapse-1 -->
+</nav>
+<div id="wrapper">
+    <!-- Sidebar -->
+    <%- include('../partials/adminSidebar') %>
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+      <div class="container-fluid xyz">
+        <div class="row">
+          <div class="col-lg-12">
+            <h2 class="ThuongTitleAttendanceRecordsAdmin"><i class="fa fa-angle-right"></i> Attendance Records</h2>
+            <style>
+              .ThuongTitleAttendanceRecordsAdmin {
+                  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                  font-size: 1.6em;
+                  padding-bottom: 9px;
+                  margin: 10px 0 20px;
+                  border-bottom: 1px solid #eee;
+                  font-weight: bold;
+                  color: #333;
+                }
+                </style>
+            <p>Month: 
+              <% 
+              const monthNames = ["January", "February", "March", "April", "May", "June", 
+                           "July", "August", "September", "October", "November", "December"];
+              %>
+              <%= monthNames[month-1] %>, <%= year %>
+            </p>
+            <hr>
+          </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row">
+          <!-- Attendance Rate Card -->
+          <div class="col-md-3">
+            <div class="panel panel-primary" style="border-color: #3498db;">
+              <div class="panel-heading" style="background-color: #3498db; border-color: #3498db;">
+                <h5 class="panel-title">Attendance Rate</h5>
+              </div>
+              <div class="panel-body text-center">
+                <% 
+                  // Tính toán số ngày làm việc thực tế trong tháng (loại bỏ cuối tuần và ngày lễ)
+                  let workingDays = 0;
+                  const daysInCurrentMonth = new Date(year, month, 0).getDate();
+                  
+                  // Khai báo ngày lễ - import từ vietnameseHolidays.js
+                  const vietnameseHolidays = [
+                    { name: "Tết Dương Lịch", date: 1, month: 1, numberOfDays: 1 },
+                    { name: "Tết Nguyên đán 2024", date: 10, month: 2, year: 2024, numberOfDays: 5 },
+                    { name: "Giỗ Tổ Hùng Vương 2024", date: 18, month: 4, year: 2024, numberOfDays: 1 },
+                    { name: "Ngày Giải phóng miền Nam", date: 30, month: 4, numberOfDays: 1 },
+                    { name: "Ngày Quốc tế Lao động", date: 1, month: 5, numberOfDays: 1 },
+                    { name: "Ngày Quốc khánh", date: 2, month: 9, numberOfDays: 1 }
+                  ];
+                  
+                  // Kiểm tra xem ngày hiện tại có phải là ngày lễ không
+                  function isHoliday(day, month, year) {
+                    for (const holiday of vietnameseHolidays) {
+                      // Kiểm tra ngày và tháng
+                      if (holiday.date === day && holiday.month === month) {
+                        // Nếu holiday có trường year, kiểm tra thêm năm
+                        if (holiday.year && holiday.year !== year) {
+                          continue;
+                        }
+                        
+                        // Kiểm tra cả khoảng nghỉ lễ nhiều ngày
+                        if (holiday.numberOfDays > 1) {
+                          // Kiểm tra xem ngày hiện tại có nằm trong khoảng nghỉ lễ không
+                          const holidayStartDate = new Date(year, holiday.month - 1, holiday.date);
+                          const checkDate = new Date(year, month - 1, day);
+                          const holidayEndDate = new Date(holidayStartDate);
+                          holidayEndDate.setDate(holidayStartDate.getDate() + holiday.numberOfDays - 1);
+                          
+                          if (checkDate >= holidayStartDate && checkDate <= holidayEndDate) {
+                            return true;
+                          }
+                        } else {
+                          return true;
+                        }
+                      }
+                    }
+                    return false;
+                  }
+                  
+                  // Đếm số ngày làm việc (loại bỏ thứ 7, chủ nhật và ngày lễ)
+                  for (let day = 1; day <= daysInCurrentMonth; day++) {
+                    const date = new Date(year, month-1, day);
+                    const dayOfWeek = date.getDay();
+                    // 0 = Chủ nhật, 6 = Thứ 7
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                      // Nếu không phải cuối tuần, kiểm tra có phải ngày lễ không
+                      if (!isHoliday(day, month, year)) {
+                        workingDays++;
+                      }
+                    }
+                  }
+                  
+                  // Số ngày có mặt
+                  const actualPresentDays = typeof presentDays !== 'undefined' ? presentDays : 0;
+                  
+                  // Tính tỷ lệ
+                  const calculatedRate = workingDays > 0 ? Math.round((actualPresentDays / workingDays) * 100) : 0;
+                %>
+                <h1 style="font-size: 36px; margin: 10px 0;"><%= calculatedRate %>%</h1>
+                <p><%= actualPresentDays %> of <%= workingDays %> working days</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Work Hours Card -->
+          <div class="col-md-3">
+            <div class="panel panel-info" style="border-color: #9b59b6;">
+              <div class="panel-heading" style="background-color: #9b59b6; border-color: #9b59b6; color: white;">
+                <h5 class="panel-title">Work Hours</h5>
+              </div>
+              <div class="panel-body text-center">
+                <h1 style="font-size: 36px; margin: 10px 0;"><%= typeof totalWorkHours !== 'undefined' ? totalWorkHours : 0.17 %> hrs</h1>
+                <p>including <%= typeof overtimeHours !== 'undefined' ? overtimeHours : 0.00 %> hrs overtime</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- On Time Card -->
+          <div class="col-md-3">
+            <div class="panel panel-success" style="border-color: #2ecc71;">
+              <div class="panel-heading" style="background-color: #2ecc71; border-color: #2ecc71;">
+                <h5 class="panel-title">On Time</h5>
+              </div>
+              <div class="panel-body text-center">
+                <h1 style="font-size: 36px; margin: 10px 0;"><%= typeof onTimeDays !== 'undefined' ? onTimeDays : 0 %></h1>
+                <p>Days present on time</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Late Card -->
+          <div class="col-md-3">
+            <div class="panel panel-warning" style="border-color: #f39c12;">
+              <div class="panel-heading" style="background-color: #f39c12; border-color: #f39c12;">
+                <h5 class="panel-title">Late</h5>
+              </div>
+              <div class="panel-body text-center">
+                <h1 style="font-size: 36px; margin: 10px 0;"><%= typeof lateDays !== 'undefined' ? lateDays : 0 %></h1>
+                <p>Days arrived late</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export and Search -->
+        <div class="row" style="margin-bottom: 20px;">
+          <div class="col-md-6">
+            <button id="exportExcel" class="btn btn-primary" style="margin-right: 10px;"><i class="fa fa-file-excel-o"></i> Export to Excel</button>
+            <button id="printBtn" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
+          </div>
+          <div class="col-md-6">
+            <form id="searchForm">
+              <div class="form-group">
+                <label for="searchQuery">Search:</label>
+                <input type="text" class="form-control" id="searchQuery" placeholder="Search...">
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Attendance Records Table -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover" id="attendanceTable">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Work Hours</th>
+                    <th>Overtime</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (typeof attendanceRecords !== 'undefined' && attendanceRecords && attendanceRecords.length > 0) { %>
+                    <% attendanceRecords.forEach(record => { %>
+                      <tr>
+                        <td><%= record.date %>/<%= record.month %>/<%= record.year %></td>
+                        <td>
+                          <% if (record.status === 'present') { %>
+                            <span class="label label-success">Present</span>
+                          <% } else if (record.status === 'late') { %>
+                            <span class="label label-warning">Late</span>
+                          <% } else if (record.status === 'leave') { %>
+                            <span class="label label-info">Leave</span>
+                          <% } else { %>
+                            <span class="label label-default">Unknown</span>
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (record.checkInTime) { %>
+                            <% 
+                              // Check if checkInTime is a full date string or just a time
+                              let checkInDisplay = record.checkInTime;
+                              if (record.checkInTime.includes('GMT')) {
+                                // It's a full date string, extract only the time part
+                                const checkInDate = new Date(record.checkInTime);
+                                checkInDisplay = checkInDate.toTimeString().split(' ')[0];
+                              }
+                            %>
+                            <%= checkInDisplay %>
+                          <% } else { %>
+                            --
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (record.checkOutTime) { %>
+                            <% 
+                              // Check if checkOutTime is a full date string or just a time
+                              let checkOutDisplay = record.checkOutTime;
+                              if (record.checkOutTime.includes('GMT')) {
+                                // It's a full date string, extract only the time part
+                                const checkOutDate = new Date(record.checkOutTime);
+                                checkOutDisplay = checkOutDate.toTimeString().split(' ')[0];
+                              }
+                            %>
+                            <%= checkOutDisplay %>
+                          <% } else { %>
+                            --
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (record.checkInTime && record.checkOutTime) { 
+                            let checkIn, checkOut, checkInDate, checkOutDate;
+                            
+                            // Check if checkInTime is a full date string or just a time
+                            if (record.checkInTime.includes('GMT')) {
+                              // It's a full date string
+                              checkInDate = new Date(record.checkInTime);
+                            } else {
+                              // It's just a time string, construct the date
+                              checkIn = record.checkInTime.split(':');
+                              checkInDate = new Date(typeof year !== 'undefined' ? year : new Date().getFullYear(), 
+                                                    typeof month !== 'undefined' ? month - 1 : new Date().getMonth(), 
+                                                    record.date);
+                              checkInDate.setHours(parseInt(checkIn[0]), parseInt(checkIn[1]), parseInt(checkIn[2]));
+                            }
+                            
+                            // Check if checkOutTime is a full date string or just a time
+                            if (record.checkOutTime.includes('GMT')) {
+                              // It's a full date string
+                              checkOutDate = new Date(record.checkOutTime);
+                            } else {
+                              // It's just a time string, construct the date
+                              checkOut = record.checkOutTime.split(':');
+                              checkOutDate = new Date(typeof year !== 'undefined' ? year : new Date().getFullYear(), 
+                                                     typeof month !== 'undefined' ? month - 1 : new Date().getMonth(), 
+                                                     record.date);
+                              checkOutDate.setHours(parseInt(checkOut[0]), parseInt(checkOut[1]), parseInt(checkOut[2]));
+                            }
+                            
+                            const diffHours = Math.round(((checkOutDate - checkInDate) / (1000 * 60 * 60)) * 100) / 100;
+                            const standardHours = 8;
+                            const workHours = diffHours > standardHours ? standardHours : diffHours;
+                          %>
+                            <%= workHours.toFixed(2) %> hrs
+                          <% } else { %>
+                            0.00 hrs
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (record.checkInTime && record.checkOutTime) { 
+                            let checkIn, checkOut, checkInDate, checkOutDate;
+                            
+                            // Check if checkInTime is a full date string or just a time
+                            if (record.checkInTime.includes('GMT')) {
+                              // It's a full date string
+                              checkInDate = new Date(record.checkInTime);
+                            } else {
+                              // It's just a time string, construct the date
+                              checkIn = record.checkInTime.split(':');
+                              checkInDate = new Date(typeof year !== 'undefined' ? year : new Date().getFullYear(), 
+                                                    typeof month !== 'undefined' ? month - 1 : new Date().getMonth(), 
+                                                    record.date);
+                              checkInDate.setHours(parseInt(checkIn[0]), parseInt(checkIn[1]), parseInt(checkIn[2]));
+                            }
+                            
+                            // Check if checkOutTime is a full date string or just a time
+                            if (record.checkOutTime.includes('GMT')) {
+                              // It's a full date string
+                              checkOutDate = new Date(record.checkOutTime);
+                            } else {
+                              // It's just a time string, construct the date
+                              checkOut = record.checkOutTime.split(':');
+                              checkOutDate = new Date(typeof year !== 'undefined' ? year : new Date().getFullYear(), 
+                                                     typeof month !== 'undefined' ? month - 1 : new Date().getMonth(), 
+                                                     record.date);
+                              checkOutDate.setHours(parseInt(checkOut[0]), parseInt(checkOut[1]), parseInt(checkOut[2]));
+                            }
+                            
+                            const diffHours = Math.round(((checkOutDate - checkInDate) / (1000 * 60 * 60)) * 100) / 100;
+                            const standardHours = 8;
+                            const overtime = diffHours > standardHours ? (diffHours - standardHours) : 0;
+                          %>
+                            <%= overtime.toFixed(2) %> hrs
+                          <% } else { %>
+                            --
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (!record.checkOutTime) { %>
+                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#checkoutModal">
+                              <i class=""></i> Check Out
+                            </button>
+                          <% } else { %>
+                            <button class="btn btn-info btn-sm" disabled>Completed</button>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="6" class="text-center">No attendance records found for this month.</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+            <div class="text-right">
+              <p>Showing 1 to <%= typeof attendanceRecords !== 'undefined' && attendanceRecords ? attendanceRecords.length : 0 %> of <%= typeof attendanceRecords !== 'undefined' && attendanceRecords ? attendanceRecords.length : 0 %> entries</p>
+              <ul class="pagination">
+                <li class="disabled"><a href="#">Previous</a></li>
+                <li class="active"><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#">5</a></li>
+                <li><a href="#">Next</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+  </div>
+
+  <!-- Check-in Modal -->
+  <div id="myModal2" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" action="/admin/mark-attendance">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Check-in</h4>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to check in?</p>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Yes</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Check Out Modal -->
+  <div id="checkoutModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" action="/admin/check-out">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Check Out</h4>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to check out for today?</p>
+            <p id="currentTimeDisplay"></p>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <input type="hidden" name="date" value="<%= currentDate.getDate() %>" />
+            <input type="hidden" name="month" value="<%= currentDate.getMonth() + 1 %>" />
+            <input type="hidden" name="year" value="<%= currentDate.getFullYear() %>" />
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Yes, Check Out</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+  <script src="/javascripts/sidebar_menu.js"></script>
+  <!-- Add DataTables and export libraries -->
+  <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Initialize DataTable with Excel export functionality
+      var table = $('#attendanceTable').DataTable({
+        paging: false,
+        searching: false,
+        info: false,
+        dom: 'Bfrtip',
+        buttons: [
+          {
+            extend: 'excel',
+            text: 'Export to Excel',
+            className: 'hidden-excel-button',
+            title: 'Attendance Records',
+            exportOptions: {
+              columns: [0, 1, 2, 3, 4, 5] // Skip Actions column
+            }
+          }
+        ]
+      });
+      
+      // Connect custom Export button to DataTables button
+      $("#exportExcel").click(function() {
+        $('.hidden-excel-button').click();
+      });
+
+      // Search functionality
+      $("#searchQuery").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#attendanceTable tbody tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+
+      // Print functionality
+      $("#printBtn").click(function() {
+        window.print();
+      });
+      
+      // Check-out modal time display
+      $('#checkoutModal').on('show.bs.modal', function () {
+        function updateCurrentTime() {
+          var now = new Date();
+          var hours = String(now.getHours()).padStart(2, '0');
+          var minutes = String(now.getMinutes()).padStart(2, '0');
+          var seconds = String(now.getSeconds()).padStart(2, '0');
+          var timeString = "Current time: <strong>" + hours + ":" + minutes + ":" + seconds + "</strong>";
+          $('#currentTimeDisplay').html(timeString);
+        }
+        
+        updateCurrentTime();
+        // Update time every second
+        var timeInterval = setInterval(updateCurrentTime, 1000);
+        
+        // Clear interval when modal is closed
+        $(this).on('hidden.bs.modal', function () {
+          clearInterval(timeInterval);
+        });
+      });
+    });
+  </script>
+  
+  <style>
+    .hidden-excel-button {
+      display: none;
+    }
+  </style>
+</body>
+</html> 
