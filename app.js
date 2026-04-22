@@ -41,6 +41,16 @@ const app = express();
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
+// Thêm đoạn này vào app.js, TRƯỚC các route app.use("/", index)...
+app.use(async (req, res, next) => {
+  try {
+    await db.connect();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use(favicon(path.join(__dirname, "public", "images", "favicon.ico")));
 
 // Use the morgan middleware for logging HTTP requests.
