@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=debug node ./bin/www",
-    "test": "cross-env NODE_ENV=test jest"
+    "test": "cross-env NODE_ENV=test jest",
+    "seed": "node seed/user-seeder.js"
   },
   "dependencies": {
     "axios": "^1.9.0",
@@ -52,4 +53,5 @@
     ],
     "coverageProvider": "v8"
   }
+
 }
