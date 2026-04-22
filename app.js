@@ -108,9 +108,10 @@ app.use(function (req, res, next) {
 });
 
 // Cấu hình lưu trữ cho upload ảnh
+// app.js
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    cb(null, path.join(__dirname, 'public/uploads/'));
+    cb(null, '/tmp'); // Thay đổi: Vercel chỉ cho phép ghi tại đây
   },
   filename: function(req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname);
