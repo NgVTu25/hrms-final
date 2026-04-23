@@ -93,7 +93,7 @@ app.use(
     }),
     cookie: { 
       maxAge: 180 * 60 * 1000,
-      secure: process.env.NODE_ENV === 'production', // Chuyển thành true nếu chạy HTTPS trên Vercel
+      secure: false, // Chuyển thành true nếu chạy HTTPS trên Vercel
       httpOnly: true
     },
   })
