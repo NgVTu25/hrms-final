@@ -76,17 +76,24 @@ app.use(express.static(path.join(__dirname, "public")));
 // 'store' is used to configure the session store. Here, a new instance of MongoStore is created to store session state in MongoDB.
 // 'mongooseConnection: mongoose.connection' tells MongoStore to use the existing Mongoose connection.
 // 'cookie: { maxAge: 180 * 60 * 1000 }' sets the maximum age of the session cookie to 180 minutes.
+// app.js
+
+// Đảm bảo đã import db từ file db.js ở phía trên (thường là dòng 37)
+// const db = require("./db"); 
+
 app.use(
   session({
     secret: "mysupersecret",
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: process.env.DB_URL,
+      // Thay vì dùng mongoUrl: process.env.DB_URL trực tiếp, 
+      // hãy sử dụng clientPromise từ hàm connect() trong db.js
+      clientPromise: db.connect().then(m => m.connection.getClient()),
     }),
     cookie: { 
       maxAge: 180 * 60 * 1000,
-      secure: false, // Đặt true nếu sử dụng HTTPS
+      secure: process.env.NODE_ENV === 'production', // Chuyển thành true nếu chạy HTTPS trên Vercel
       httpOnly: true
     },
   })

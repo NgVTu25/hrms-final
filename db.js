@@ -52,4 +52,4 @@ function getConnection() {
   return mongoose.connection;
 }
 
-module.exports = { connect, close, getConnection };
+module.exports = { connect, close, getConnection, clientPromise: cached.promise };
