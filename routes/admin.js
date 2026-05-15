@@ -49,6 +49,50 @@ router.use("/", isLoggedIn, function isAuthenticated(req, res, next) {
   next();
 });
 
+// Middleware to check attendance status
+async function checkAttendanceStatus(req, res, next) {
+  try {
+    const currentDate = new Date();
+    const date = currentDate.getDate();
+    const month = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
+
+    const attendance = await Attendance.findOne({
+      employeeID: req.user._id,
+      date,
+      month,
+      year,
+    });
+
+    if (!attendance) {
+      req.attendanceStatus = 'not_checked_in';
+    } else if (attendance.checkOutTime) {
+      req.attendanceStatus = 'completed';
+    } else {
+      req.attendanceStatus = 'checked_in';
+    }
+    res.locals.attendanceStatus = req.attendanceStatus;
+  } catch (err) {
+    console.error('Error checking attendance status:', err);
+    req.attendanceStatus = 'error';
+    res.locals.attendanceStatus = 'error';
+  }
+  next();
+}
+
+// Apply attendance status middleware to relevant routes
+router.use(checkAttendanceStatus);
+
+// Provide CSRF token for admin views and modal forms
+router.use((req, res, next) => {
+  try {
+    res.locals.csrfToken = req.csrfToken();
+  } catch (err) {
+    console.error('CSRF token generation failed:', err);
+  }
+  next();
+});
+
 // Check if user has admin privileges
 router.use("/", function isAdmin(req, res, next) {
   if (req.user.type === "admin" || req.user.type === "accounts_manager") {
@@ -126,7 +170,8 @@ router.get("/", async function viewDashboard(req, res, next) {
       partTimeCount,
       fullTimeCount,
       partTimePercentage,
-      fullTimePercentage
+      fullTimePercentage,
+      attendanceStatus: req.attendanceStatus
     });
   } catch (err) {
     console.error("Error in admin dashboard route:", err);
@@ -178,7 +223,8 @@ router.get("/view-all-employees", async (req, res, next) => {
       csrfToken: req.csrfToken(),
       users: formattedUsers,
       userName: req.user.name,
-      messages: req.flash() || {}
+      messages: req.flash() || {},
+      attendanceStatus: req.attendanceStatus
     });
   } catch (err) {
     console.error(err);
@@ -197,6 +243,7 @@ router.get("/employee-profile/:id", async (req, res, next) => {
       csrfToken: req.csrfToken(),
       moment: moment,
       userName: req.user.name,
+      attendanceStatus: req.attendanceStatus
     });
   } catch (err) {
     console.error(err);
@@ -222,6 +269,7 @@ router.get("/view-employee-attendance/:id", async (req, res, next) => {
       moment: moment,
       userName: req.user.name,
       employee_name: user.name,
+      attendanceStatus: req.attendanceStatus
     });
   } catch (err) {
     console.error(err);
@@ -356,20 +404,33 @@ router.get("/all-employee-projects/:id", async (req, res, next) => {
 router.get("/leave-applications", async (req, res, next) => {
   try {
     const leaves = await Leave.find({}).sort({ _id: -1 });
-    const hasLeave = leaves.length > 0 ? 1 : 0;
 
-    const employeeChunks = await Promise.all(
-      leaves.map((leave) => User.findById(leave.applicantID))
-    );
+    // Get all unique applicantIDs
+    const applicantIDs = [...new Set(leaves.map(leave => leave.applicantID))];
+
+    // Find all users in one query
+    const users = await User.find({ _id: { $in: applicantIDs } });
+
+    // Create a map of user ID to user
+    const userMap = new Map(users.map(user => [user._id.toString(), user]));
+
+    // Filter leaves to only include those with existing users
+    const validLeaves = leaves.filter(leave => userMap.has(leave.applicantID.toString()));
+
+    const hasLeave = validLeaves.length > 0 ? 1 : 0;
+
+    // Create employee array in the same order as validLeaves
+    const employees = validLeaves.map(leave => userMap.get(leave.applicantID.toString()));
 
     res.render("Admin/allApplications", {
       title: "List Of Leave Applications",
       csrfToken: req.csrfToken(),
       hasLeave,
-      leaves,
-      employees: employeeChunks,
+      leaves: validLeaves,
+      employees,
       moment: moment,
       userName: req.user.name,
+      activePage: 'leaveApplications'
     });
   } catch (err) {
     console.error(err);
@@ -596,7 +657,7 @@ router.get("/admin-attendance-dashboard", async (req, res, next) => {
     
     res.render("Admin/adminAttendanceDashboard", {
       title: "Admin Attendance Dashboard",
-          csrfToken: req.csrfToken(),
+      csrfToken: req.csrfToken(),
       userName: name,
       month,
       year,
@@ -613,9 +674,10 @@ router.get("/admin-attendance-dashboard", async (req, res, next) => {
       workDaysWithFullHours,
       pendingLeaves,
       daysInMonth,
-          moment: moment,
-      currentDate: currentDate
-        });
+      moment: moment,
+      currentDate: currentDate,
+      activePage: 'attendanceDashboard'
+    });
   } catch (err) {
     console.error("Error in admin attendance dashboard:", err);
     res.status(500).send("Error loading admin attendance dashboard");

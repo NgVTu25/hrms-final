@@ -32,6 +32,35 @@ router.use("/", function isManager(req, res, next) {
   }
 });
 
+// Middleware to check attendance status
+router.use("/", async function checkAttendanceStatus(req, res, next) {
+  try {
+    const today = new Date();
+    const attendance = await Attendance.findOne({
+      employeeID: req.user._id,
+      date: today.getDate(),
+      month: today.getMonth() + 1,
+      year: today.getFullYear()
+    });
+
+    res.locals.attendanceStatus = {
+      hasCheckedIn: !!attendance,
+      hasCheckedOut: attendance && !!attendance.checkOutTime,
+      checkInTime: attendance ? attendance.checkInTime : null,
+      checkOutTime: attendance ? attendance.checkOutTime : null
+    };
+  } catch (err) {
+    console.error("Error checking attendance status:", err);
+    res.locals.attendanceStatus = {
+      hasCheckedIn: false,
+      hasCheckedOut: false,
+      checkInTime: null,
+      checkOutTime: null
+    };
+  }
+  next();
+});
+
 /**
  * Displays home to the manager
  */
@@ -440,18 +469,30 @@ router.get(
 router.get("/leave-applications", async (req, res, next) => {
   try {
     const leaves = await Leave.find({}).sort({ _id: -1 });
-    const hasLeave = leaves.length > 0 ? 1 : 0;
 
-    const employeeChunks = await Promise.all(
-      leaves.map((leave) => User.findById(leave.applicantID))
-    );
+    // Get all unique applicantIDs
+    const applicantIDs = [...new Set(leaves.map(leave => leave.applicantID))];
+
+    // Find all users in one query
+    const users = await User.find({ _id: { $in: applicantIDs } });
+
+    // Create a map of user ID to user
+    const userMap = new Map(users.map(user => [user._id.toString(), user]));
+
+    // Filter leaves to only include those with existing users
+    const validLeaves = leaves.filter(leave => userMap.has(leave.applicantID.toString()));
+
+    const hasLeave = validLeaves.length > 0 ? 1 : 0;
+
+    // Create employee array in the same order as validLeaves
+    const employees = validLeaves.map(leave => userMap.get(leave.applicantID.toString()));
 
     res.render("Manager/allApplications", {
       title: "List Of Leave Applications",
       csrfToken: req.csrfToken(),
       hasLeave,
-      leaves,
-      employees: employeeChunks,
+      leaves: validLeaves,
+      employees,
       moment: moment,
       userName: req.user.name,
     });
@@ -1565,6 +1606,61 @@ router.get("/mark-attendance-direct", function directMarkAttendance(req, res, ne
         });
       }
       res.redirect("/manager/view-attendance-current");
+    }
+  );
+});
+
+/**
+ * Check out route
+ */
+router.get("/check-out-direct", function directCheckOut(req, res, next) {
+  console.log("Check out direct route được gọi");
+  
+  Attendance.findOne(
+    {
+      employeeID: req.user._id,
+      date: new Date().getDate(),
+      month: new Date().getMonth() + 1,
+      year: new Date().getFullYear(),
+    },
+    function getAttendance(err, attendance) {
+      if (err) {
+        console.log("Lỗi khi tìm điểm danh:", err);
+        req.flash("error", "Error finding attendance record");
+        return res.redirect("/manager/view-attendance-current");
+      }
+      
+      if (!attendance) {
+        console.log("Chưa check-in hôm nay");
+        req.flash("error", "You haven't checked in today yet");
+        return res.redirect("/manager/view-attendance-current");
+      }
+      
+      if (attendance.checkOutTime) {
+        console.log("Đã check-out rồi");
+        req.flash("error", "You have already checked out today");
+        return res.redirect("/manager/view-attendance-current");
+      }
+      
+      // Thêm giờ check-out
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const seconds = now.getSeconds().toString().padStart(2, '0');
+      attendance.checkOutTime = `${hours}:${minutes}:${seconds}`;
+      
+      console.log("Cập nhật check-out time:", attendance.checkOutTime);
+      
+      attendance.save(function saveAttendance(err) {
+        if (err) {
+          console.log("Lỗi khi lưu check-out:", err);
+          req.flash("error", "Error saving check-out time");
+        } else {
+          console.log("Đã lưu check-out thành công");
+          req.flash("success", "Checked out successfully");
+        }
+        res.redirect("/manager/view-attendance-current");
+      });
     }
   );
 });

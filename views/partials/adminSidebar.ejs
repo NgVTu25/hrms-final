@@ -55,18 +55,25 @@
     </li>
 
 
-    <li data-toggle="modal" data-target="#myModal2">
+    <% if (typeof attendanceStatus !== 'undefined' && attendanceStatus === 'not_checked_in') { %>
+    <li data-toggle="modal" data-target="#adminCheckInModal">
       <a href="#">
         <span class="fa-stack fa-lg pull-left"><i class="fa fa-check-circle fa-stack-1x"></i></span>
-        Check-in
+        Check In
       </a>
     </li>
-
-    <% if (typeof showCheckOut !== 'undefined' && showCheckOut) { %>
-    <li data-toggle="modal" data-target="#checkOutModal">
+    <% } else if (typeof attendanceStatus !== 'undefined' && attendanceStatus === 'checked_in') { %>
+    <li data-toggle="modal" data-target="#adminCheckOutModal">
       <a href="#">
         <span class="fa-stack fa-lg pull-left"><i class="fa fa-sign-out fa-stack-1x"></i></span>
         Check Out
+      </a>
+    </li>
+    <% } else if (typeof attendanceStatus !== 'undefined' && attendanceStatus === 'completed') { %>
+    <li class="disabled">
+      <a href="#" style="color: #999; cursor: not-allowed;">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-check-circle fa-stack-1x"></i></span>
+        Completed
       </a>
     </li>
     <% } %>
@@ -112,3 +119,46 @@
     });
   });
   </script>
+
+  <!-- Admin attendance modals -->
+  <div id="adminCheckInModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <form method="post" action="/admin/mark-attendance">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Check-in</h4>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to check in?</p>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="_csrf" value="<%= csrfToken || '' %>" />
+            <button type="submit" class="btn btn-default">Yes</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="adminCheckOutModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <form method="post" action="/admin/check-out">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Check Out</h4>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to check out?</p>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="_csrf" value="<%= csrfToken || '' %>" />
+            <button type="submit" class="btn btn-default">Yes</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>

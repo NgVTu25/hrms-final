@@ -38,7 +38,10 @@ let mongoose = require("mongoose");
 const db = require("../db");
 
 db.connect()
-  .then(() => console.log("Database connected"))
+  .then(() => {
+    console.log("Database connected");
+    seedUsers();
+  })
   .catch((err) => console.error("Database connection error", err));
 
 let users = [
@@ -263,7 +266,7 @@ let users = [
   }),  
 ];
 
-(async function () {
+async function seedUsers() {
   for (let user of users) {
     let existingUser = await User.findOne({ email: user.email });
     if (existingUser) {
@@ -274,7 +277,7 @@ let users = [
     }
   }
   exit();
-})();
+}
 
 function exit() {
   mongoose.disconnect();

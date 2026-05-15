@@ -43,10 +43,22 @@
     </li>
 
     <li class="<%= typeof path !== 'undefined' && path === '/manager/mark-attendance' ? 'active' : '' %>">
-      <a href="/manager/mark-attendance" id="markAttendance" data-toggle="modal" data-target="#myModal2">
-        <span class="fa-stack fa-lg pull-left"><i class="fa fa-check-circle fa-stack-1x"></i></span>
-        Mark Attendance
-      </a>
+      <% if (typeof attendanceStatus !== 'undefined' && attendanceStatus.hasCheckedOut) { %>
+        <a href="#" class="disabled" style="pointer-events: none; color: #999;">
+          <span class="fa-stack fa-lg pull-left"><i class="fa fa-check-circle fa-stack-1x"></i></span>
+          Attendance Completed
+        </a>
+      <% } else if (typeof attendanceStatus !== 'undefined' && attendanceStatus.hasCheckedIn) { %>
+        <a href="/manager/check-out" id="checkOutBtn" data-toggle="modal" data-target="#checkOutModal">
+          <span class="fa-stack fa-lg pull-left"><i class="fa fa-sign-out fa-stack-1x"></i></span>
+          Check Out
+        </a>
+      <% } else { %>
+        <a href="/manager/mark-attendance" id="markAttendance" data-toggle="modal" data-target="#myModal2">
+          <span class="fa-stack fa-lg pull-left"><i class="fa fa-check-circle fa-stack-1x"></i></span>
+          Check In
+        </a>
+      <% } %>
     </li>
 
     <li class="<%= typeof path !== 'undefined' && path === '/manager/view-attendance' ? 'active' : '' %>">

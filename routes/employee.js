@@ -11,6 +11,49 @@ router.use("/", isLoggedIn, function checkAuthentication(req, res, next) {
   next();
 });
 
+// Middleware to check today's attendance status for employee pages
+async function checkEmployeeAttendanceStatus(req, res, next) {
+  try {
+    const currentDate = new Date();
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
+
+    const attendance = await Attendance.findOne({
+      employeeID: req.user._id,
+      date: day,
+      month: month,
+      year: year
+    });
+
+    if (!attendance) {
+      req.attendanceStatus = 'not_checked_in';
+    } else if (attendance.checkOutTime) {
+      req.attendanceStatus = 'completed';
+    } else {
+      req.attendanceStatus = 'checked_in';
+    }
+    res.locals.attendanceStatus = req.attendanceStatus;
+  } catch (err) {
+    console.error('Error checking employee attendance status:', err);
+    req.attendanceStatus = 'error';
+    res.locals.attendanceStatus = 'error';
+  }
+  next();
+}
+
+router.use(checkEmployeeAttendanceStatus);
+
+// CSRF token for employee views
+router.use((req, res, next) => {
+  try {
+    res.locals.csrfToken = req.csrfToken();
+  } catch (err) {
+    console.error('CSRF token generation failed for employee routes:', err);
+  }
+  next();
+});
+
 /**
  * Redirects to the dashboard page.
  */
@@ -463,7 +506,7 @@ router.get("/view-personal-projects", function viewPersonalProjects(req, res, ne
   var projectChunks = [];
   
   // Populate nối các document từ các collection khác nhau
-  Project.find({ employeeID: req.user._id })
+  Project.find({ teamMembers: req.user._id })
     .sort({ _id: -1 })
     .populate('teamMembers', 'name') // Lấy thông tin teamMembers từ User collection
     .exec(function getProjects(err, docs) {
